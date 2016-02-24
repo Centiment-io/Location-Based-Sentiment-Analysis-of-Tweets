@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+	.state{
+		fill: none;
+		stroke: #a9a9a9;
+		stroke-width: 1;
+	}
+	.state:hover{
+		fill-opacity:0.5;
+	}
+	#tooltip {   
+		position: absolute;           
+		text-align: center;
+		padding: 20px;             
+		margin: 10px;
+		font: 12px sans-serif;        
+		background: lightsteelblue;   
+		border: 1px;      
+		border-radius: 2px;           
+		pointer-events: none;         
+	}
+	#tooltip h4{
+		margin:0;
+		font-size:14px;
+	}
+	#tooltip{
+		background:rgba(0,0,0,0.9);
+		border:1px solid grey;
+		border-radius:5px;
+		font-size:12px;
+		width:auto;
+		padding:4px;
+		color:white;
+		opacity:0;
+	}
+	#tooltip table{
+		table-layout:fixed;
+	}
+	#tooltip tr td{
+		padding:0;
+		margin:0;
+	}
+	#tooltip tr td:nth-child(1){
+		width:50px;
+	}
+	#tooltip tr td:nth-child(2){
+		text-align:center;
+	}
+</style>
+<body>
+<div id="tooltip"></div><!-- div to hold tooltip. -->
+<svg width="960" height="600" id="statesvg"></svg> <!-- svg to hold the map. -->
+<script src="uStates.js"></script> <!-- creates uStates. -->
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+<script>
+
+	function tooltipHtml(n, d){	/* function to create html content string in tooltip div. */
+		return "<h4>"+n+"</h4><table>"+
+			"<tr><td>Low</td><td>"+(d.low)+"</td></tr>"+
+			"<tr><td>Average</td><td>"+(d.avg)+"</td></tr>"+
+			"<tr><td>High</td><td>"+(d.high)+"</td></tr>"+
+			"</table>";
+	}
+	
+	var sampleData ={};	/* Sample random data. */	
+	/*["HI", "AK", "FL", "SC", "GA", "AL", "NC", "TN", "RI", "CT", "MA",
+	"ME", "NH", "VT", "NY", "NJ", "PA", "DE", "MD", "WV", "KY", "OH", 
+	"MI", "WY", "MT", "ID", "WA", "DC", "TX", "CA", "AZ", "NV", "UT", 
+	"CO", "NM", "OR", "ND", "SD", "NE", "IA", "MS", "IN", "IL", "MN", 
+	"WI", "MO", "AR", "OK", "KS", "LS", "VA"]*/
+  var testObj = {
+  "Object": [{
+    "state": "AL",
+    "opinions": {
+      "0": 0,
+      "1": 14,
+      "2": 2,
+      "3": 4,
+      "4": 0
+    }
+  }, {
+    "state": "AR",
+    "opinions": {
+      "0": 0,
+      "1": 2,
+      "2": 2,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "AZ",
+    "opinions": {
+      "0": 0,
+      "1": 31,
+      "2": 7,
+      "3": 2,
+      "4": 0
+    }
+  }, {
+    "state": "CA",
+    "opinions": {
+      "0": 0,
+      "1": 202,
+      "2": 58,
+      "3": 24,
+      "4": 3
+    }
+  }, {
+    "state": "CO",
+    "opinions": {
+      "0": 0,
+      "1": 10,
+      "2": 4,
+      "3": 1,
+      "4": 0
+    }
+  }, {
+    "state": "CT",
+    "opinions": {
+      "0": 0,
+      "1": 8,
+      "2": 2,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "DC",
+    "opinions": {
+      "0": 0,
+      "1": 44,
+      "2": 10,
+      "3": 5,
+      "4": 0
+    }
+  }, {
+    "state": "FL",
+    "opinions": {
+      "0": 0,
+      "1": 65,
+      "2": 40,
+      "3": 12,
+      "4": 0
+    }
+  }, {
+    "state": "GA",
+    "opinions": {
+      "0": 0,
+      "1": 13,
+      "2": 2,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "HI",
+    "opinions": {
+      "0": 0,
+      "1": 1,
+      "2": 1,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "IA",
+    "opinions": {
+      "0": 0,
+      "1": 2,
+      "2": 1,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "ID",
+    "opinions": {
+      "0": 0,
+      "1": 13,
+      "2": 1,
+      "3": 1,
+      "4": 0
+    }
+  }, {
+    "state": "IL",
+    "opinions": {
+      "0": 1,
+      "1": 9,
+      "2": 25,
+      "3": 6,
+      "4": 0
+    }
+  }, {
+    "state": "IN",
+    "opinions": {
+      "0": 0,
+      "1": 3,
+      "2": 2,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "KY",
+    "opinions": {
+      "0": 0,
+      "1": 14,
+      "2": 3,
+      "3": 2,
+      "4": 1
+    }
+  }, {
+    "state": "LA",
+    "opinions": {
+      "0": 0,
+      "1": 8,
+      "2": 2,
+      "3": 2,
+      "4": 0
+    }
+  }, {
+    "state": "MA",
+    "opinions": {
+      "0": 1,
+      "1": 56,
+      "2": 11,
+      "3": 9,
+      "4": 0
+    }
+  }, {
+    "state": "MD",
+    "opinions": {
+      "0": 0,
+      "1": 1,
+      "2": 0,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "MI",
+    "opinions": {
+      "0": 0,
+      "1": 12,
+      "2": 5,
+      "3": 1,
+      "4": 0
+    }
+  }, {
+    "state": "MN",
+    "opinions": {
+      "0": 0,
+      "1": 0,
+      "2": 1,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "MO",
+    "opinions": {
+      "0": 0,
+      "1": 22,
+      "2": 7,
+      "3": 1,
+      "4": 0
+    }
+  }, {
+    "state": "MS",
+    "opinions": {
+      "0": 0,
+      "1": 5,
+      "2": 5,
+      "3": 1,
+      "4": 0
+    }
+  }, {
+    "state": "MT",
+    "opinions": {
+      "0": 0,
+      "1": 23,
+      "2": 7,
+      "3": 2,
+      "4": 0
+    }
+  }, {
+    "state": "NC",
+    "opinions": {
+      "0": 0,
+      "1": 44,
+      "2": 11,
+      "3": 5,
+      "4": 0
+    }
+  }, {
+    "state": "NE",
+    "opinions": {
+      "0": 0,
+      "1": 2,
+      "2": 0,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "NH",
+    "opinions": {
+      "0": 0,
+      "1": 0,
+      "2": 2,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "NJ",
+    "opinions": {
+      "0": 0,
+      "1": 31,
+      "2": 5,
+      "3": 2,
+      "4": 0
+    }
+  }, {
+    "state": "NM",
+    "opinions": {
+      "0": 0,
+      "1": 1,
+      "2": 2,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "NV",
+    "opinions": {
+      "0": 0,
+      "1": 64,
+      "2": 12,
+      "3": 8,
+      "4": 0
+    }
+  }, {
+    "state": "NY",
+    "opinions": {
+      "0": 2,
+      "1": 148,
+      "2": 43,
+      "3": 21,
+      "4": 1
+    }
+  }, {
+    "state": "OH",
+    "opinions": {
+      "0": 0,
+      "1": 10,
+      "2": 4,
+      "3": 2,
+      "4": 0
+    }
+  }, {
+    "state": "OK",
+    "opinions": {
+      "0": 0,
+      "1": 7,
+      "2": 1,
+      "3": 5,
+      "4": 0
+    }
+  }, {
+    "state": "OR",
+    "opinions": {
+      "0": 1,
+      "1": 4,
+      "2": 2,
+      "3": 4,
+      "4": 0
+    }
+  }, {
+    "state": "PA",
+    "opinions": {
+      "0": 0,
+      "1": 45,
+      "2": 15,
+      "3": 6,
+      "4": 0
+    }
+  }, {
+    "state": "SC",
+    "opinions": {
+      "0": 0,
+      "1": 11,
+      "2": 9,
+      "3": 3,
+      "4": 1
+    }
+  }, {
+    "state": "SD",
+    "opinions": {
+      "0": 0,
+      "1": 3,
+      "2": 0,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "TN",
+    "opinions": {
+      "0": 0,
+      "1": 25,
+      "2": 14,
+      "3": 2,
+      "4": 0
+    }
+  }, {
+    "state": "TX",
+    "opinions": {
+      "0": 1,
+      "1": 98,
+      "2": 102,
+      "3": 12,
+      "4": 0
+    }
+  }, {
+    "state": "VA",
+    "opinions": {
+      "0": 0,
+      "1": 20,
+      "2": 10,
+      "3": 3,
+      "4": 0
+    }
+  }, {
+    "state": "VT",
+    "opinions": {
+      "0": 0,
+      "1": 1,
+      "2": 0,
+      "3": 0,
+      "4": 0
+    }
+  }, {
+    "state": "WI",
+    "opinions": {
+      "0": 0,
+      "1": 3,
+      "2": 0,
+      "3": 1,
+      "4": 0
+    }
+  }, {
+    "state": "WV",
+    "opinions": {
+      "0": 0,
+      "1": 19,
+      "2": 3,
+      "3": 2,
+      "4": 0
+    }
+  }, {
+    "state": "WY",
+    "opinions": {
+      "0": 0,
+      "1": 0,
+      "2": 1,
+      "3": 0,
+      "4": 0
+    }
+
+  }]
+};
+$.each(testObj["Object"], function(i, d){ 
+			var low=d.opinions["0"], 
+				mid=d.opinions["1"], 
+				high=d.opinions["2"];
+			sampleData[d.state]={low:d3.min([low,mid,high]), high:d3.max([low,mid,high]), 
+					avg:Math.round((low+mid+high)/3), color:d3.interpolate("black","white")(mid/100)}; //"#ffffcc", "#800026"
+		});
+	
+	/* draw states on id #statesvg */	
+	uStates.draw("#statesvg", sampleData, tooltipHtml);
+</script>
+
+</body>
