@@ -1,5 +1,5 @@
 Goal of this Project:
-Perform location based sentiment analysis of live twitter feed on a given theme. In this project, we have chosen elections theme and heat map of US showing percentage of positive tweets from each state for Donald Trump is generated. This model is completely independent of the theme we have chosen.  For different theme, say for performing of sentiment analysis of new Google’s Vision API, all we need to do plug in the keywords associated in our model!
+Perform location based sentiment analysis of live twitter feed on a given theme. In this project, we have chosen elections theme and heat map of US showing percentage of positive tweets from each state for Donald Trump is generated. This model is completely independent of the theme we have chosen.  For different theme,  all we need to do plug in the keywords associated with that theme in our model!
 
 Steps :
 
